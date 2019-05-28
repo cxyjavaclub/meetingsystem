@@ -1,0 +1,109 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+}
+
+.the-reverse-side {
+    height: 100%;
+    width: 80%;
+    border-top: 700px solid #1a2226;
+    border-right: 180px solid transparent;
+    opacity: 0.9;
+}
+
+.wrapper {
+    position: absolute;
+    width: 80%;
+    height: 100%;
+    top: 0;
+    opacity: 1;
+}
+
+.header-wrapper {
+    display: block;
+    height: 15%;
+    max-height: 100px;
+    padding-top: 30px;
+    width: 100%;
+    border-right: 150px solid transparent;
+}
+
+.meeting-room-name {
+    height: 65px;
+    border-left: 5px solid #009688;
+    margin-left: 50px;
+    line-height: 65px;
+    width: 100%;
+    font-size: 30px;
+}
+
+.meeting-room-name > span {
+    display: inline-block;
+}
+
+.content-wrapper {
+    padding: 40px 0;
+    width: 93%;
+    height: 35%;
+    max-height: 240px;
+}
+
+.content-wrapper > p {
+    text-align: center;
+}
+
+.content-wrapper > p:nth-child(1) {
+    font-size: 50px;
+    height: 80px;
+    line-height: 100px;
+}
+
+.content-wrapper > p:nth-child(2) {
+    height: 40px;
+    line-height: 40px;
+}
+
+.content-wrapper > p:nth-child(3) {
+    height: 40px;
+    line-height: 40px;
+}
+
+.meeting-message-table {
+    height: 47%;
+    position: relative;
+    width: 91%;
+    display: block;
+}
+
+.table-th {
+    width: 80%;
+    position: absolute;
+    table-layout: fixed;
+    background-color: #30383B;
+}
+
+th, td {
+    text-align: center;
+    padding: 5px 0;
+}
+
+#zzsc {
+    width: 200px;
+    margin-top: 10px;
+}
+
+.date-show-div {
+    position: absolute;
+    bottom: 0;
+    line-height: 30px;
+    margin-left: 10px;
+    font-size: 15px;
+    font-family: 宋体;
+    font-weight: 900;
+    color: #1E9FFF;
+}

@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.quansu.daointerface.MeetingConfereeMapper">
+  <resultMap id="BaseResultMap" type="com.quansu.pojo.MeetingConferee">
+    <id column="conferee_id" jdbcType="BIGINT" property="confereeId" />
+    <result column="meeting_id" jdbcType="VARCHAR" property="meetingId" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="identity_name" jdbcType="VARCHAR" property="identityName" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="identity_number" jdbcType="VARCHAR" property="identityNumber" />
+    <result column="delete_state" jdbcType="BIT" property="deleteState" />
+    <result column="created" jdbcType="TIMESTAMP" property="created" />
+    <result column="updated" jdbcType="TIMESTAMP" property="updated" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    conferee_id, meeting_id, user_name, identity_name, phone, identity_number, delete_state, 
+    created, updated
+  </sql>
+  <select id="selectByExample" parameterType="com.quansu.pojo.MeetingConfereeExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from meeting_conferee
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from meeting_conferee
+    where conferee_id = #{confereeId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from meeting_conferee
+    where conferee_id = #{confereeId,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.quansu.pojo.MeetingConfereeExample">
+    delete from meeting_conferee
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.quansu.pojo.MeetingConferee">
+    insert into meeting_conferee (conferee_id, meeting_id, user_name, 
+      identity_name, phone, identity_number, 
+      delete_state, created, updated
+      )
+    values (#{confereeId,jdbcType=BIGINT}, #{meetingId,jdbcType=VARCHAR}, #{userName,jdbcType=VARCHAR}, 
+      #{identityName,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{identityNumber,jdbcType=VARCHAR}, 
+      #{deleteState,jdbcType=BIT}, #{created,jdbcType=TIMESTAMP}, #{updated,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.quansu.pojo.MeetingConferee">
+    insert into meeting_conferee
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="confereeId != null">
+        conferee_id,
+      </if>
+      <if test="meetingId != null">
+        meeting_id,
+      </if>
+      <if test="userName != null">
+        user_name,
+      </if>
+      <if test="identityName != null">
+        identity_name,
+      </if>
+      <if test="phone != null">
+        phone,
+      </if>
+      <if test="identityNumber != null">
+        identity_number,
+      </if>
+      <if test="deleteState != null">
+        delete_state,
+      </if>
+      <if test="created != null">
+        created,
+      </if>
+      <if test="updated != null">
+        updated,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="confereeId != null">
+        #{confereeId,jdbcType=BIGINT},
+      </if>
+      <if test="meetingId != null">
+        #{meetingId,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null">
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="identityName != null">
+        #{identityName,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="identityNumber != null">
+        #{identityNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="deleteState != null">
+        #{deleteState,jdbcType=BIT},
+      </if>
+      <if test="created != null">
+        #{created,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updated != null">
+        #{updated,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.quansu.pojo.MeetingConfereeExample" resultType="java.lang.Long">
+    select count(*) from meeting_conferee
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update meeting_conferee
+    <set>
+      <if test="record.confereeId != null">
+        conferee_id = #{record.confereeId,jdbcType=BIGINT},
+      </if>
+      <if test="record.meetingId != null">
+        meeting_id = #{record.meetingId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userName != null">
+        user_name = #{record.userName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.identityName != null">
+        identity_name = #{record.identityName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.phone != null">
+        phone = #{record.phone,jdbcType=VARCHAR},
+      </if>
+      <if test="record.identityNumber != null">
+        identity_number = #{record.identityNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="record.deleteState != null">
+        delete_state = #{record.deleteState,jdbcType=BIT},
+      </if>
+      <if test="record.created != null">
+        created = #{record.created,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updated != null">
+        updated = #{record.updated,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update meeting_conferee
+    set conferee_id = #{record.confereeId,jdbcType=BIGINT},
+      meeting_id = #{record.meetingId,jdbcType=VARCHAR},
+      user_name = #{record.userName,jdbcType=VARCHAR},
+      identity_name = #{record.identityName,jdbcType=VARCHAR},
+      phone = #{record.phone,jdbcType=VARCHAR},
+      identity_number = #{record.identityNumber,jdbcType=VARCHAR},
+      delete_state = #{record.deleteState,jdbcType=BIT},
+      created = #{record.created,jdbcType=TIMESTAMP},
+      updated = #{record.updated,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.quansu.pojo.MeetingConferee">
+    update meeting_conferee
+    <set>
+      <if test="meetingId != null">
+        meeting_id = #{meetingId,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null">
+        user_name = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="identityName != null">
+        identity_name = #{identityName,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="identityNumber != null">
+        identity_number = #{identityNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="deleteState != null">
+        delete_state = #{deleteState,jdbcType=BIT},
+      </if>
+      <if test="created != null">
+        created = #{created,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updated != null">
+        updated = #{updated,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where conferee_id = #{confereeId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.quansu.pojo.MeetingConferee">
+    update meeting_conferee
+    set meeting_id = #{meetingId,jdbcType=VARCHAR},
+      user_name = #{userName,jdbcType=VARCHAR},
+      identity_name = #{identityName,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      identity_number = #{identityNumber,jdbcType=VARCHAR},
+      delete_state = #{deleteState,jdbcType=BIT},
+      created = #{created,jdbcType=TIMESTAMP},
+      updated = #{updated,jdbcType=TIMESTAMP}
+    where conferee_id = #{confereeId,jdbcType=BIGINT}
+  </update>
+</mapper>

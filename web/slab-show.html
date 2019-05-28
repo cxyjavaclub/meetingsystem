@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base href="/meetingsystem/"> <!--//再请求开头添加这个字符串-->
+    <meta charset="UTF-8">
+    <title>平板展示</title>
+
+    <!--bootstrap-->
+    <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" href="layui/css/layui.css">
+    <link rel="stylesheet" href="css/slab-show.css">
+
+    <!--js-->
+    <script type="text/javascript" src="js/jquery-3.2.1.js"></script>
+    <script type="text/javascript" src="js/zzsc.js"></script>
+    <script src="layui/layui.js"></script>
+    <script type="text/javascript" src="js/slab-show.js"></script>
+
+    <style>
+        body {
+            background: url("img/QJ6343304060.jpg") no-repeat;
+            background-size: 100% 100%;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+<div class="the-reverse-side"></div>
+<div class="wrapper">
+    <header class="header-wrapper" style="">
+        <!--会议室名称-->
+        <div class="meeting-room-name">
+            <div style="float: left; font-size: 50px; margin-left: 8px;">一号会议室</div>
+            <div id="zzsc" style="float: right">
+            </div>
+        </div>
+    </header>
+
+    <div class="content-wrapper">
+        <p class="meeting-name">暂无会议</p>
+        <p>
+            <i class="layui-icon layui-icon-user"></i>&nbsp;&nbsp;&nbsp;<span class="meeting-compere"></span>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <i class="layui-icon layui-icon-date"></i>&nbsp;&nbsp;&nbsp;<span class="meeting-date"></span>
+        </p>
+        <p>
+            <button class="layui-btn meeting-count-down"></button>
+            <button class="layui-btn meeting-sign-in">签到</button>
+        </p>
+    </div>
+    <footer class="meeting-message-table" style="">
+        <table class="table table-th">
+            <thead class="meeting-root-data-thead">
+            <tr>
+                <th>
+                    会议主题
+                </th>
+                <th>
+                    会议时间
+                </th>
+                <th>
+                    会议日期
+                </th>
+                <th>
+                    主持人
+                </th>
+            </tr>
+            </thead>
+        </table>
+        <div style="width: 80%; height: 100%; overflow-y: auto;">
+            <table class="table meeting-message-data" style="width: 100%; table-layout:fixed; word-wrap:break-word;">
+                <tbody class="meeting-root-data">
+                <tr>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>1</td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </footer>
+    <div class="date-show-div">当前日期</div>
+</div>
+<script>
+
+</script>
+</body>
+</html>

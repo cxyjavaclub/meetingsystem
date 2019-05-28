@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base href="/meetingsystem/"> <!--//再请求开头添加这个字符串-->
+    <meta charset="UTF-8">
+    <title>预定会议</title>
+    <!--css-->
+    <link rel="stylesheet" href="layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="css/meeting-reserve.css">
+    <!--bootstrap-->
+    <!--    <link href="bootstrap/css/bootstrap.css" rel="stylesheet">-->
+
+    <!--js-->
+    <script type="text/javascript" src="js/jquery-3.2.1.js"></script>
+    <script src="layui/layui.js"></script>
+    <script type="text/javascript" src="js/date-utils.js"></script>
+
+</head>
+<body>
+<div class="meeting-control-div" style="width: 100%; height: 100%;">
+    <div class="meeting-control"
+         style="height: 40px; padding: 4px; overflow: hidden; line-height: 40px; background-color: #E3E3E3;">
+        <button class="layui-btn layui-btn-sm" onclick="addMeeting()">添加会议</button>
+    </div>
+    <div class="meeting-control-header">
+        <div style="width: 100%; overflow: hidden; height: 40px">
+            <div style="float: left; width: 150px; float: left;">
+                <div style="width: 100%; padding: 0 10px; height: 40px;">
+                    <span style="width: 15px; height: 15px; margin-top: 13px; display: inline-block; vertical-align:bottom;  background-color: #FFE59A;"></span>
+                    <span style=" display: inline-block; vertical-align:bottom;">待审核</span>
+                    <span style="width: 15px; height: 15px; vertical-align:bottom; margin: 10px 0 0 5px; display: inline-block; background-color: #E2F7CE;"></span>
+                    <span style=" display: inline-block; vertical-align:bottom;">已审核</span>
+                </div>
+            </div>
+            <div class="meeting-reserve-div-right" style="float: left">
+                <div id="meeting-reserve-slide" class="demo-slider"></div>
+            </div>
+        </div>
+        <div class="meeting-message-table-header" style="overflow: hidden; background: #eee;">
+            <div class="meeting-reserve-div-left">
+                <table class="table meeting-reserve-table-left">
+                    <thead>
+                    <tr>
+                        <th style="line-height: normal;">
+                            <div style="width: 100%; text-align: center; margin-top: 5px;">
+                                <input type="text" style="width: 90%;border: 1px solid #ccc;border-radius: 4px;"
+                                       id="date-amend-input-id">
+                            </div>
+                            <div style="width: 100%; text-align: center; margin-top: 5px;">
+                            <span style="display: inline-block; width: 90%;">
+                                <button onclick="onTheDay()">上一天</button><button style="margin-left: 10px;"
+                                                                                 onclick="theNextDay()">下一天</button>
+                            </span>
+                            </div>
+                        </th>
+                </table>
+            </div>
+            <div class="meeting-reserve-div-right" style="float:left; overflow: hidden;">
+                <table class="table meeting-reserve-table-right">
+                    <thead>
+                    <tr class="my-th-all-template">
+                        <th>
+                            <div style="height: 40px; line-height: 40px; font-size: 20px;">
+                                <span>00:00</span>
+                            </div>
+                            <div style="width: 100%; height: 20px; line-height: 20px;">
+                                <table style="width: 100%">
+                                    <tr>
+                                        <td>00</td>
+                                        <td>15</td>
+                                        <td>30</td>
+                                        <td>45</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="meeting-message-body" style="overflow-y: auto; height: 500px;">
+        <div class="meeting-reserve-div-left">
+            <table class="table meeting-reserve-table-left">
+                <tbody class="meeting-room-names">
+
+                </tbody>
+            </table>
+        </div>
+        <div class="meeting-reserve-div-right" style="float:left; overflow: hidden;">
+            <table class="table meeting-reserve-table-right">
+                <tbody class="meeting-room-table-content">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="meeting-message-style" style="display: none;">
+    <div>
+        <div class="meeting-message-div">
+            <p></p>
+            <p></p>
+            <p></p>
+        </div>
+    </div>
+</div>
+<!--弹出层-->
+<div style="display: none" class="popup-box-div">
+    <div>
+        <div class="layui-tab layui-tab-brief" style="height: 460px; position: relative;" lay-filter="docDemoTabBrief">
+            <ul class="layui-tab-title" style="height: 41px;">
+                <li class="layui-this">快速预定</li>
+                <li>参会人员</li>
+            </ul>
+            <div class="layui-tab-content" style="height: 400px; padding: 5px 10px">
+                <div class="layui-tab-item layui-show predetermine-show">
+                    <div style="margin: 30px">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" style="text-align: left">真实姓名</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="title" required lay-verify="required" placeholder="请输入真实姓名"
+                                       autocompvare="off" class="layui-input popup-true-name-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" style="text-align: left">会议主题</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="title" required lay-verify="required" placeholder="请输入会议主题"
+                                       autocompvare="off" class="layui-input popup-theme-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" style="text-align: left">会议室</label>
+                            <div class="layui-input-block">
+                                <select class="form-control popup-meeting-room-select">
+                                    <option selected disabled>请选择一个会议室</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" style="text-align: left">会议日期</label>
+                            <div class="layui-input-block popup-date-div">
+                                <input type="text" name="title" required
+                                       lay-verify="required"
+                                       autocompvare="off" class="layui-input popup-date-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label" style="text-align: left">会议时间</label>
+                                <div class="layui-input-inline popup-time-price_min" style="width: 100px;">
+                                    <input type="text" name="price_min" autocompvare="off"
+                                           class="layui-input popup-time-price_min-input">
+                                </div>
+                                <div class="layui-form-mid">-</div>
+                                <div class="layui-input-inline popup-time-price_max" style="width: 100px;">
+                                    <input type="text" name="price_max" autocompvare="off"
+                                           class="layui-input popup-time-price_max-input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" style="text-align: left">会议内容</label>
+                            <div class="layui-input-block">
+                                <textarea name="" required lay-verify="required" style="max-height: 140px;"
+                                          placeholder="请输入会议内容"
+                                          class="layui-textarea popup-meeting-content-textarea"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-tab-item attend-meetings-show" style="height: 100%;">
+                    <div class="meeting-conferee-message" style="height: 100%; overflow-y: auto;">
+                        <!--                        <p>-->
+                        <!--                            <span>姓名：身份证身份证 身份证：500243199808102916 电话：15002365816</span>-->
+                        <!--                            <i class="layui-icon layui-icon-close"></i>-->
+                        <!--                        </p>-->
+                    </div>
+                    <div style="height: 34px; position: absolute; bottom: -36px; line-height: 34px;">
+                        <label style="text-align: left; float: left; padding: 0 15px 0 5px">参会人员</label>
+                        <div style="float: left;">
+                            <select class="form-control meeting-conferee-select">
+                                <option selected disabled>请选择参会人</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="height: 40px; text-align: right; line-height: 40px;">
+            <button class="layui-btn layui-btn-sm meeting-submit">预定</button>
+            <button class="layui-btn layui-btn-sm meeting-close" style="margin-right: 30px;">取消</button>
+        </div>
+    </div>
+</div>
+<script>
+    function getStringByDate(dateParameter) {
+        var translateDate = dateParameter.replace("-", "/").replace("-", "/");
+        return new Date(translateDate);
+    }
+
+    //返回两个时间的分钟差
+    function getMinuteDateDifference(dateBegin, dateEnd) {
+        return (getStringByDate(dateEnd).getTime() - getStringByDate(dateBegin).getTime()) / 1000 / 60;
+    }
+
+    function addByTransDate(dateParameter, num) {
+        var translateDate = "", dateString = "", monthString = "", dayString = "";
+        var newDate = getStringByDate(dateParameter);
+        newDate = newDate.valueOf();
+        newDate = newDate + num * 24 * 60 * 60 * 1000;
+        newDate = new Date(newDate);
+        //如果月份长度少于2，则前加 0 补位
+        if ((newDate.getMonth() + 1).toString().length == 1) {
+            monthString = 0 + "" + (newDate.getMonth() + 1).toString();
+        } else {
+            monthString = (newDate.getMonth() + 1).toString();
+        }
+        //如果天数长度少于2，则前加 0 补位
+        if (newDate.getDate().toString().length == 1) {
+            dayString = 0 + "" + newDate.getDate().toString();
+        } else {
+            dayString = newDate.getDate().toString();
+        }
+        dateString = newDate.getFullYear() + "-" + monthString + "-" + dayString;
+        return dateString;
+    }
+
+    function reduceByTransDate(dateParameter, num) {
+        var translateDate = "", dateString = "", monthString = "", dayString = "";
+        var newDate = getStringByDate(dateParameter);
+        newDate = newDate.valueOf();
+        newDate = newDate - num * 24 * 60 * 60 * 1000;
+        newDate = new Date(newDate);
+        //如果月份长度少于2，则前加 0 补位
+        if ((newDate.getMonth() + 1).toString().length == 1) {
+            monthString = 0 + "" + (newDate.getMonth() + 1).toString();
+        } else {
+            monthString = (newDate.getMonth() + 1).toString();
+        }
+        //如果天数长度少于2，则前加 0 补位
+        if (newDate.getDate().toString().length == 1) {
+            dayString = 0 + "" + newDate.getDate().toString();
+        } else {
+            dayString = newDate.getDate().toString();
+        }
+        dateString = newDate.getFullYear() + "-" + monthString + "-" + dayString;
+        return dateString;
+    }
+
+    //得到日期  主方法
+    function showTime(pdVal, text) {
+        var trans_day = "";
+        var cur_date = text ? new Date(text) : new Date();/* 如果日期框内为空的话就获取系统的时间为输入框初始化赋值，如果有值（用户自己选择的时间），那就获取用户自己选择的时间 */
+        var cur_year = cur_date.getFullYear();
+        var cur_month = cur_date.getMonth() + 1;
+        var real_date = cur_date.getDate();
+        cur_month = cur_month > 9 ? cur_month : ("0" + cur_month);
+        real_date = real_date > 9 ? real_date : ("0" + real_date);
+        eT = cur_year + "-" + cur_month + "-" + real_date;
+        if (pdVal == 1) {
+            trans_day = addByTransDate(eT, 1);
+        } else if (pdVal == -1) {
+            trans_day = reduceByTransDate(eT, 1);
+        } else {
+            trans_day = eT;
+        }
+        //处理
+        return trans_day;
+    }
+</script>
+<script>
+    var allTdWidth = 152; //td的宽度，用于设置滑动条
+    var allFullHeight = 160; //除了显示内容外其他宽度，用于纵向滚动条显示
+    layui.use('element', function () {
+        var element = layui.element; //Tab的切换功能，切换事件监听等，需要依赖element模块
+    });
+    layui.use('laydate', function () {
+        var laydate = layui.laydate;
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#date-amend-input-id' //指定元素
+            , value: new Date() //必须遵循format参数设定的格式
+            ,done: function(value, date, endDate){
+                updateShowMeetingMessage(value + ' ' + '00:00:00');
+            }
+        });
+    });
+
+    //滑动条
+    function sliderFun(value) {
+        layui.use('slider', function () {
+            var slider = layui.slider;
+            //默认滑块
+            slider.render({
+                elem: '#meeting-reserve-slide'
+                , tips: false
+                , value: value
+                , min: 0
+                , max: allTdWidth * 24 - $('.meeting-reserve-div-right').width() + 10
+                , change: function (value) {
+                    $('.meeting-reserve-div-right').scrollLeft(value);
+                }
+            });
+        });
+    }
+
+    // 上一天
+    function onTheDay() {
+        $('#date-amend-input-id').val(showTime(-1, $('#date-amend-input-id').val()));
+        updateShowMeetingMessage($('#date-amend-input-id').val() + ' ' + '00:00:00');
+    }
+
+    // 下一天
+    function theNextDay() {
+        $('#date-amend-input-id').val(showTime(1, $('#date-amend-input-id').val()));
+        updateShowMeetingMessage($('#date-amend-input-id').val() + ' ' + '00:00:00');
+    }
+
+    //返回会议室名所在行
+    function getMeetingRoomLocation(meetingRoomName) {
+        var num = undefined;
+        if (meetingRoomName) {
+            $('.meeting-room-names>tr>td:first-child').each(function (index, obj) {
+                if (meetingRoomName === $(obj).text()) {
+                    num = index;
+                    return false;
+                }
+            })
+            return num;
+        }
+    }
+
+    //通过列返回会议室名称
+    function getMeetingRoomName(line) {
+        return $('.meeting-room-names>tr:eq(' + line + '):first').text();
+    }
+
+    //通过时间生成span
+    function fineTimeTdStyleData(begin, end, width, borderWidth) {
+        var obj = {};
+        obj.dateBegin = getStringByDate(begin);
+        obj.dateEnd = getStringByDate(end);
+        obj.row = obj.dateBegin.getHours();
+        obj.minute = getMinuteDateDifference(begin, end);
+        obj.interBank = parseInt((obj.minute / 60).toString());
+        obj.leftValue = obj.dateBegin.getMinutes();
+        obj.style = {width: width / 60 * obj.minute + obj.interBank * borderWidth, left: width / 60 * obj.leftValue}
+        return obj;
+    }
+
+    //通过列返回会议室名称
+    function getMeetingDataRow(row) {
+        var rowInt = parseInt(row);
+        return (rowInt > 10 ? rowInt : '0' + rowInt) + ':00:00'
+    }
+
+    //写入待审核和审核通过框
+    function paintingTd(timeStyle, line, colorNum, data, style) {
+        var jqueryObj = $($('.meeting-message-style').html());
+        if (!style) {
+            style = {};
+        }
+        if (!style['background-color']) {
+            if (!colorNum) {
+                colorNum = 0;
+            }
+            if (colorNum == 0) {
+                style['background-color'] = '#FFE59A';
+            } else {
+                style['background-color'] = '#E2F7CE';
+            }
+        }
+        style.width = timeStyle.style.width;
+        style.left = timeStyle.style.left;
+        jqueryObj.children('div').css(style);
+        // jqueryObj.children('div').height(60 - 4);
+        // jqueryObj.children('div').css('border', '2px solid  #1E9FFF');
+        jqueryObj.children('div').css('z-index', '999999');
+        // jqueryObj.children('div').css('border-right', '1px solid #0000FF');
+        if (data['meetingTheme']) {
+            jqueryObj.find('.meeting-message-div').children('p').eq(0).text(data['meetingTheme']);
+        }
+        if (data['meetingDate']) {
+            jqueryObj.find('.meeting-message-div').children('p').eq(1).text(data['meetingDate']);
+        }
+        if (data['meetingContent']) {
+            jqueryObj.find('.meeting-message-div').children('p').eq(2).text(data['meetingContent']);
+        }
+        jqueryObj.on('click', function (e) {
+            e.stopPropagation();
+        });
+        $('.meeting-room-table-content>tr:eq(' + line + ')>td:nth-child(' + (timeStyle.row + 1) + ')').append(jqueryObj);
+    }
+
+
+    var uploadingMessageClassArr = new Array(20); //存储弹框需要信息框的Class名称
+    var meetingMessageObject = new Array(); //会议室信息(包含时间)
+    var allMeetingRoomObject = []; //所有会议室信息
+    var allUserMessageObject = new Array(); //存储所有人员对象
+    var meetingConfereeMessageArr = new Array();//存储参会人员下标在allUserMessageObject获取信息
+
+    //预定会议弹框
+    function addMeeting(data) {
+        if (!data) {
+            data = {}
+        }
+        layui.use('layer', function () {
+            var layer = layui.layer;
+            //当layui用class作为dom对象时，第一个显示正常，后面会显示不正常
+            uploadingMessageClassArr[0] = 'theme-input' + showTime(0); //会议主题
+            uploadingMessageClassArr[1] = 'meeting-room' + showTime(0); //会议室选择
+            uploadingMessageClassArr[2] = 'input-date' + showTime(0); //会议日期
+            uploadingMessageClassArr[3] = 'input-min-time' + showTime(0);//会议开始时间
+            uploadingMessageClassArr[4] = 'input-max-time' + showTime(0);//会议结束时间
+            uploadingMessageClassArr[5] = 'meeting-content' + showTime(0);//会议内容
+            uploadingMessageClassArr[6] = 'meeting-conferee-message' + showTime(0);//参会人员信息显示
+            uploadingMessageClassArr[7] = 'meeting-conferee' + showTime(0);//参会人员选择
+            uploadingMessageClassArr[8] = 'true-name-input' + showTime(0); //真实姓名
+            uploadingMessageClassArr[9] = 'meeting-submit' + showTime(0);//提交按钮
+            uploadingMessageClassArr[10] = 'meeting-close' + showTime(0);//取消按钮
+            var addObj = $($('.popup-box-div').html());//获取弹出层模板html,并使用jquery解析
+            var addObjChildren = addObj.children();
+            addObjChildren.addClass("add-meeting-message");
+            addObjChildren.find('.popup-theme-input').addClass(uploadingMessageClassArr[0]);
+            addObjChildren.find('.popup-meeting-room-select').addClass(uploadingMessageClassArr[1]);
+            addObjChildren.find('.popup-date-input').addClass(uploadingMessageClassArr[2]);
+            addObjChildren.find('.popup-time-price_min-input').addClass(uploadingMessageClassArr[3]);
+            addObjChildren.find('.popup-time-price_max-input').addClass(uploadingMessageClassArr[4]);
+            addObjChildren.find('.popup-meeting-content-textarea').addClass(uploadingMessageClassArr[5]);
+            addObjChildren.find('.meeting-conferee-message').addClass(uploadingMessageClassArr[6]);
+            addObjChildren.find('.meeting-conferee-select').addClass(uploadingMessageClassArr[7]);
+            addObjChildren.find('.popup-true-name-input').addClass(uploadingMessageClassArr[8]);
+            addObjChildren.find('.meeting-submit').addClass(uploadingMessageClassArr[9]);
+            addObjChildren.find('.meeting-close').addClass(uploadingMessageClassArr[10]);
+            if (data.name) {
+                data.name = data.name.trim();
+                addObjChildren.find('.popup-meeting-room-select').find('option:contains(\'' + data.name + '\')').attr("selected", true);
+            }
+            if (!data.day) {
+                data.day = $('#date-amend-input-id').val();
+            }
+            if (!data.time) {
+                data.time = '';
+            }
+            layer.open({
+                type: 1
+                , closeBtn: 1
+                , title: false
+                , area: ['600px', '500px']
+                , content: addObj.html()//$('.popup-box-div').html().replace('popup-date-input', inputClass).replace('popup-time-price_min-input', inputClass1).replace('popup-time-price_max-input', inputClass2)
+                , success: function (layero, index) {
+                    layui.use('laydate', function () {
+                        var laydate = layui.laydate;
+                        //执行一个laydate实例
+                        laydate.render({
+                            elem: '.' + uploadingMessageClassArr[2] //指定元素
+                            , value: data.day //必须遵循format参数设定的格式
+                        });
+                        laydate.render({
+                            elem: '.' + uploadingMessageClassArr[3]//指定元素
+                            , type: 'time'
+                            , value: data.time
+                            , btns: ['clear', 'confirm']
+                            , ready: formatminutes
+                            , change: function (value, date, endDate) {
+                                // layer.msg('有表情地提示', {icon: 2, zIndex: 999999999});
+                                // layer.msg('有表情地提示', {icon: 1, zIndex: 999999999});
+                            }
+                        });
+                        laydate.render({
+                            elem: '.' + uploadingMessageClassArr[4]//指定元素
+                            , type: 'time'
+                            , btns: ['clear', 'confirm']
+                            , ready: formatminutes
+                            , change: function (value, date, endDate) {
+                                // layer.msg('有表情地提示', {icon: 2, zIndex: 999999999});
+                                // layer.msg('有表情地提示', {icon: 1, zIndex: 999999999});
+                            }
+                        });
+
+                        function formatminutes() {
+                            $('.laydate-time-list>li:nth-child(3)').remove();
+                        }
+                    });
+                    //选择参会人员
+                    $('.' + uploadingMessageClassArr[7]).on('change', function () {
+                        var obj = $(this).children('option:selected');
+                        obj.attr("disabled", "disabled");
+                        var formatObj = $('<p><span>姓名：身份证身份证 身份证：500243199808102916 电话：15002365816</span><i class="layui-icon layui-icon-close"></i></p>');
+                        formatObj.attr('value', obj.attr('value'));
+                        formatObj.children('span').text(obj.text());
+                        $('.' + uploadingMessageClassArr[6]).append(formatObj);
+                        //清除参会人员
+                        $('.' + uploadingMessageClassArr[6]).find('i').on('click', function () {
+                            $('.' + uploadingMessageClassArr[7]).find('option:contains(\'' + $(this).parent().attr('data') + '\')').attr("disabled", false);
+                            $(this).parent().remove();
+                        });
+                    });
+                    //提交按钮
+                    $('.'+ uploadingMessageClassArr[9]).click(function () {
+                        submitMeetingMessage();
+                    });
+                    //取消按钮
+                    $('.'+ uploadingMessageClassArr[10]).click(function () {
+                        layer.closeAll();
+                    });
+                }
+            });
+        });
+    }
+
+    function lengthIsZero(str, msg) {
+        if (str.length == 0) {
+            try {
+                layer.alert(msg + "不能为空", {icon: 2});
+            }catch (e) {
+                layer.alert(msg + "不能为空");
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+    function submitMeetingMessage() {
+        var obj = {};
+        obj.sponsorTrueName = $('.' + uploadingMessageClassArr[8]).val();
+        obj.sponsorTrueName = $.trim(obj.sponsorTrueName);
+        if(lengthIsZero(obj.sponsorTrueName, '真实姓名')){
+            return false;
+        }
+        obj.meetingTheme = $('.' + uploadingMessageClassArr[0]).val();
+        obj.meetingTheme = $.trim(obj.meetingTheme);
+        if(lengthIsZero(obj.meetingTheme, '会议标题')){
+            return false;
+        }
+        obj.meetingRoomId = $('.' + uploadingMessageClassArr[1]).children('option:selected').attr('value');
+        if(!obj.meetingRoomId){
+            alert('请选择会议室');
+            return false;
+        }
+        obj.meetingRoomName = $('.' + uploadingMessageClassArr[1]).children('option:selected').text();
+        var meetingDate = $('.' + uploadingMessageClassArr[2]).val();
+        meetingDate = $.trim(meetingDate);
+        if(lengthIsZero(meetingDate, '会议日期')){
+            return false;
+        }
+        var minTime = $('.' + uploadingMessageClassArr[3]).val();
+        minTime = $.trim(minTime);
+        if(lengthIsZero(minTime, '会议开始时间')){
+            return false;
+        }
+        var maxTime = $('.' + uploadingMessageClassArr[4]).val();
+        maxTime = $.trim(maxTime);
+        if(lengthIsZero(maxTime, '会议结束时间')){
+            return false;
+        }
+        console.log(meetingDate + ' ' + minTime);
+        console.log(meetingDate + ' ' + maxTime);
+        obj.meetingBeginDate = getStringByDate(meetingDate + ' ' + minTime);
+        obj.meetingEndDate = getStringByDate(meetingDate + ' ' + maxTime);
+        if((obj.meetingEndDate.getTime() - obj.meetingBeginDate.getTime()) <= 0){
+            layer.alert("会议结束时间必须大于开始时间", {icon: 2});
+            return false;
+        }
+        obj.meetingContent = $('.' + uploadingMessageClassArr[5]).val();
+        obj.meetingContent = $.trim(obj.meetingContent);
+        if(lengthIsZero(obj.meetingContent, '会议内容')){
+            return false;
+        }
+        console.log(obj);
+        $.get('meeting/add', obj, function (result) {
+            if(result.code == 200){
+                layer.alert('添加成功', {icon: 1}, function () {
+                    layer.closeAll();
+                });
+                updateShowMeetingMessage($('#date-amend-input-id').val() + ' ' + '00:00:00');
+            }else{
+                layer.alert('添加失败：' + result.msg);
+            }
+        }, 'json');
+    }
+
+    //通过会议室名增加一条Table数据
+    function addMeetingTable(meetingRoomName) {
+        var meetingRoomTrObj = $('<tr><td>' + meetingRoomName + '</td></tr>');
+        var meetingRoomContentObj = $('<tr></tr>');
+        for (var i = 0; i < 24; i++) {
+            meetingRoomContentObj.append('<td></td>');
+        }
+        $('.meeting-room-names').append(meetingRoomTrObj);
+        $('.meeting-room-table-content').append(meetingRoomContentObj);
+    }
+
+
+    //添加会议 data
+    // var arr = [];
+    // var obj = {};
+    // obj.meetingRoomName = '三号会议室';
+    // obj.meetingBeginDate = '2019-5-13 01:00:00';
+    // obj.meetingEndDate = '2019-5-13 02:30:00';
+    // obj.meetingAuditState = 1;
+    // arr.push(obj);
+    // showMeetingMessage(arr);
+    function showMeetingMessage(dataArr) {
+        for (var obj in dataArr) {
+            var meetingRoomName = findMeetingRoomId(dataArr[obj]['meetingRoomId']);
+            paintingTd(fineTimeTdStyleData(dataArr[obj]['meetingBeginDate'], dataArr[obj]['meetingEndDate'], 150, 2), getMeetingRoomLocation(meetingRoomName),
+                dataArr[obj]['meetingAuditState'], {
+                    'meetingTheme': dataArr[obj]['meetingTheme'],
+                    'meetingDate': dataArr[obj]['meetingBeginDate'].split(' ')[1] + ' - ' + dataArr[obj]['meetingEndDate'].split(' ')[1],
+                    'meetingContent': dataArr[obj]['meetingContent']
+                });
+        }
+    }
+
+    //向服务器显示的会议室信息
+    function updateShowMeetingMessage(date) {
+        $('.meeting-room-table-content>tr>td').html('');
+        $.get('meeting/date', {millisecond: new Date(date).getTime()}, function (result) {
+            if (result.code == 200) {
+                if (result.data != null) {
+                    for (var o in result.data) {
+                        result.data[o]['meetingBeginDate'] = dateFtt('yyyy-MM-dd HH:mm:ss', result.data[o]['meetingBeginDate']);
+                        result.data[o]['meetingEndDate'] = dateFtt('yyyy-MM-dd HH:mm:ss', result.data[o]['meetingEndDate']);
+                    }
+                    showMeetingMessage(result.data);
+                    meetingMessageObject = result.data;
+                }
+            }
+        }, 'json');
+    }
+
+    //获取所有的会议室信息
+    function acquireAllMeetingRoom() {
+        $.get('meeting-room/all', function (result) {
+            if (result.code == 200) {
+                allMeetingRoomObject = result.data;
+                for (var v in result.data) {
+                    $('.popup-meeting-room-select').append('<option value="'+ result.data[v]['meetingRoomId'] +'">' + result.data[v]['meetingRoomName'] + '</option>');
+                    addMeetingTable(result.data[v]['meetingRoomName']);
+                }
+                updateShowMeetingMessage(dateFtt('yyyy-MM-dd') + ' ' + '00:00:00');
+                $('.meeting-reserve-div-right').scrollLeft(new Date().getHours() * allTdWidth);
+            }
+        }, 'json');
+    }
+    //通过会议室id获取会议名
+    function findMeetingRoomId(id) {
+        if(allMeetingRoomObject){
+            for (var v in allMeetingRoomObject) {
+                if(allMeetingRoomObject[v]['meetingRoomId'] == id){
+                    return allMeetingRoomObject[v]['meetingRoomName'];
+                }
+            }
+        }
+    }
+
+    //获取所有人员名单
+    function acquireAllUserMessage() {
+        $.get('', function (result) {
+            if (result.code == 200) {
+                allUserMessageObject = result.data;
+                for (var v in result.data) {
+                    $('.meeting-conferee-select').append('<option value="'+ result.data[v]['phone']+ '">' + result.data[v]['name'] + result.data[v]['phone'] + '</option>');
+                }
+            }
+        }, 'json')
+    }
+
+    //页面初始化
+    function init() {
+        // 设置另一边长度
+        $('.meeting-reserve-div-right').width($('.meeting-control-div').width() - allTdWidth - 20);
+        //设置显示页高度
+        $('.meeting-message-body').height($('.meeting-control-div').height() - allFullHeight);
+        //设置滑条
+        var meetingSliderValue = new Date().getHours() * allTdWidth;
+        sliderFun(meetingSliderValue);
+
+        //设置表格时间
+        var text = $('.my-th-all-template').html();
+        // console.log(text);
+        for (var i = 1; i < 24; i++) {
+            $('.my-th-all-template').append(text.replace("00:00", (i < 10 ? '0' + i : i) + ':00'));
+        }
+    }
+
+    $(function () {
+        init();
+        acquireAllMeetingRoom();
+        //单击表格
+        $('body').on('click', '.meeting-reserve-table-right>tbody>tr>td', function () {
+            var date = {};
+            date.name = getMeetingRoomName($(this).parent().index());
+            date.time = getMeetingDataRow($(this).index());
+            addMeeting(date);
+        });
+
+        //窗口大小改变事件
+        window.onresize = function () {
+            // 设置另一边长度
+            $('.meeting-reserve-div-right').width($('.meeting-control-div').width() - allTdWidth - 20);
+            //设置显示页高度
+            $('.meeting-message-body').height($('.meeting-control-div').height() - allFullHeight);
+            sliderFun($('.meeting-reserve-div-right').scrollLeft());
+            // console.log('窗口大小改变');
+        }
+    })
+</script>
+</body>
+</html>

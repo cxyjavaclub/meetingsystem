@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>大屏显示</title>
+    <!--css-->
+    <link rel="stylesheet" href="../layui/css/layui.css" media="all">
+    <!--js-->
+    <script type="text/javascript" src="../js/jquery-3.2.1.js"></script>
+    <script src="../layui/layui.js"></script>
+    <style>
+        html,body{
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            /*background-color: red;*/
+        }
+        #table-div-id{
+            height: 100%;
+            overflow: hidden;
+        }
+    </style>
+
+</head>
+<body>
+<div id="table-div-id">
+    <input id="input-test"  class="layui-input" type="text" value="45787">
+    <table style="margin: 0;" id="layui-table-id" ></table>
+</div>
+
+<script>
+    let objArr = new Array();
+    function af(){
+        for(let i = 0; i < 1000; i++){
+            objArr[i] = {'id': i, 'username': 'chenxiaoyun'};
+        }
+    }
+    af();
+
+    $(function(){
+        $('#input-test').focus(function () {
+            console.log($('#input-test').val());
+            this.value = $('#input-test').val();
+        });
+    })
+    layui.use('laydate', function(){
+        var laydate = layui.laydate;
+        laydate.render({
+            elem: '#input-test' //指定元素
+            ,type: 'time'
+            ,range: true
+            ,min: '09:00:00'
+            ,max: '17:00:00'
+            ,format: 'HH:mm'
+            // ,ready: formatminutes
+            // , value: new Date() //必须遵循format参数设定的格式
+        });
+    })
+    // layui.use('table', function(){
+    //     var table = layui.table;
+    //
+    //     //第一个实例
+    //     table.render({
+    //         elem: '#layui-table-id'
+    //         ,data: objArr//数据接口
+    //         ,limit: 30
+    //         ,height: $("#table-div-id").height()
+    //         ,page: false
+    //         ,skin: 'nob'
+    //             ,cellMinWidth: 100
+    //         ,cols: [[
+    //             {field:'id', title: 'ID', fixed: 'left'}
+    //             ,{field:'username', title: '用户名'} //width 支持：数字、百分比和不填写。你还可以通过 minWidth 参数局部定义当前单元格的最小宽度，layui 2.2.1 新增
+    //             ,{field:'sex', title: '性别'}
+    //             ,{field:'city', title: '城市'}
+    //             ,{field:'sign', title: '签名'}
+    //             ,{field:'classify', title: '职业'} //单元格内容水平居中
+    //             ,{field:'experience', title: '积分'} //单元格内容水平居中
+    //             ,{field:'score', title: '评分'}
+    //             ,{field:'wealth', title: '财富'}
+    //         ]]
+    //     });
+    // });
+</script>
+</body>
+</html>

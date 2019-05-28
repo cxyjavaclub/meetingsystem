@@ -1,0 +1,109 @@
+<!DOCTYPE HTML>  
+<html>  
+<head>
+    <base href="/meetingsystem/"> <!--//再请求开头添加这个字符串-->
+    <meta charset="UTF-8">
+    <title>人脸识别+身份证读取</title>
+    <!--js-->
+    <script type="text/javascript" src="js/jquery-3.2.1.js"></script>
+    <script>
+        var socket;  
+        function Connect(){  
+            try{  
+                socket=new WebSocket('ws://127.0.0.1:1234');  
+            }catch(e){  
+                alert('error');  
+                return false;
+            }  
+            socket.onopen = sOpen;  
+            socket.onerror = sError;
+            socket.onmessage= sMessage;
+            socket.onclose= sClose;
+            return true;
+        }
+        function onLine(){
+            $.get('equipment/on-line', {uuid: GetQueryString('uuid')}, function () {
+
+            }, 'json')
+        }
+        var time;
+        function sOpen(){
+            console.log('connect success!');
+            Send('begin#70');
+            //服务器端设备在线访问
+            onLine();
+            time = setInterval(function () {
+                onLine();
+            }, 60000);
+        }
+        function sError(e){
+            alert("error " + e);
+            clearInterval(time);
+        }
+        function sMessage(msg){
+            var strArr = msg.data.split('#');
+            $('#div-message').html('');
+            $('#div-message').append('<p>姓名：'+ strArr[0] +'</p>');
+            $('#div-message').append('<p>性别：'+ strArr[1] +'</p>');
+            $('#div-message').append('<p>民族：'+ strArr[2] +'</p>');
+            $('#div-message').append('<p>出生日期：'+ strArr[3] +'</p>');
+            $('#div-message').append('<p>地址：'+ strArr[4] +'</p>');
+            $('#div-message').append('<p>身份证号：'+ strArr[5] +'</p>');
+            $('#img1').attr('src', 'data:image/jpeg;base64,' + strArr[strArr.length - 2]);
+            $('#img2').attr('src', 'data:image/jpeg;base64,' + strArr[strArr.length - 1]);
+            $.post('equipment/verify', {verifyMessage: msg.data}, function (result) {
+                if(result.code == 200){
+                    countDown(result.data.msg, result.data.ms);
+                }
+            }, 'json');
+        }
+        function countDown(msg, ms) {
+            setTimeout(function () {
+                Send(msg);
+            }, ms);
+        }
+        function sClose(e){
+            alert("connect closed:" + e.code);
+        }  
+        function Send(msg){
+            socket.send(msg);
+        } 
+        function Close(){
+            socket.close();
+        }
+
+        function GetQueryString(name)
+        {
+            var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+            var r = window.location.search.substr(1).match(reg);
+            if(r!=null)return  unescape(r[2]); return null;
+        }
+
+        function timeConnect(){
+            setTimeout(function () {
+                if(!Connect()){
+                    timeConnect();
+                }
+            }, 3000);
+        }
+
+        $(function () {
+            timeConnect();
+        })
+    </script>
+</head>
+<body>
+<div>
+    <div id="div-message">
+
+    </div>
+    <img id="img1" src=""/>
+    <img id="img2" src=""/>
+</div>
+<input id="msg" type="text" size = "200" value="begin#70">
+<button id="connect" onclick="Connect();">重新连接</button>
+<button id="send" onclick="socket.send(document.getElementById('msg').value);">发送信息</button>
+<button id="close" onclick="Close();">关闭连接</button>
+</body>  
+   
+</html>

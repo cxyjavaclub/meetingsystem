@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base href="/meetingsystem/"> <!--//再请求开头添加这个字符串-->
+    <meta charset="UTF-8">
+    <title>设备状态</title>
+    <!--css-->
+    <link rel="stylesheet" href="layui/css/layui.css" media="all">
+    <!--js-->
+    <script type="text/javascript" src="js/jquery-3.2.1.js"></script>
+    <script src="layui/layui.js"></script>
+    <script src="js/date-utils.js"></script>
+</head>
+<body>
+<table style="margin: 0;" id="layui-table-id" ></table>
+<script>
+    var allMeetingRoomObject = []; //所有会议室信息
+    //获取所有的会议室信息
+    function acquireAllMeetingRoom() {
+        $.get('meeting-room/all', function (result) {
+            if (result.code == 200) {
+                allMeetingRoomObject = result.data;
+            }
+        }, 'json');
+    }
+    acquireAllMeetingRoom();
+    //通过会议室id获取会议名
+    function findMeetingRoomId(id) {
+        if(allMeetingRoomObject){
+            for (var v in allMeetingRoomObject) {
+                if(allMeetingRoomObject[v]['meetingRoomId'] == id){
+                    return allMeetingRoomObject[v]['meetingRoomName'];
+                }
+            }
+        }
+    }
+    layui.use('table', function(){
+        var table = layui.table;
+        //第一个实例
+        table.render({
+            elem: '#layui-table-id'
+            ,url: 'equipment/all'//数据接口
+            ,limit: 20
+            ,limits:[20, 30, 40]
+            ,page: true
+            ,height: 'full-3' //高度最大化减去差值'
+            ,response: {
+                statusCode: 200 //规定成功的状态码，默认：0
+            }
+            ,cols: [[
+                {field:'equipmentId', title: 'ID', unresize: true, align: 'center'}
+                ,{field:'equipmentUuid', title: '设备与平台唯一码', unresize: true, align: 'center'}
+                ,{field:'equipmentType', title: '设备类型', unresize: true, align: 'center', templet: function (res) {
+                        return res.equipmentType == 0 ? '大屏' : res.equipmentType == 1 ? '平板' : res.meetingRoomState == 2 ? '身份证读取器' : '未知设备';
+                    }} //width 支持：数字、百分比和不填写。你还可以通过 minWidth 参数局部定义当前单元格的最小宽度，layui 2.2.1 新增
+                ,{field:'equipmentState', title: '设备状态', unresize: true, align: 'center', templet: function (res) {
+                        return res.equipmentState == 0 ? '离线' : res.equipmentState == 1 ? '在线' : '未知';
+                    }}
+                ,{field:'meetingRoomId', title: '设备关联的会议室', unresize: true, align: 'center', templet: function (res) {
+                        return findMeetingRoomId(res.meetingRoomId);
+                    }}
+                ,{field:'created', title: '设备创建时间', unresize: true, align: 'center', templet: function (res) {
+                        return dateFtt('yyyy-MM-dd HH:mm:ss', res.created);
+                    }}
+            ]]
+        });
+    });
+</script>
+</body>
+</html>

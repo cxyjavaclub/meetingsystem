@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base href="/meetingsystem/"> <!--//再请求开头添加这个字符串-->
+    <meta charset="UTF-8">
+    <title>会议室管理</title>
+    <!--css-->
+    <link rel="stylesheet" href="layui/css/layui.css" media="all">
+    <!--    bootstrap-->
+    <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+    <!--js-->
+    <script type="text/javascript" src="js/jquery-3.2.1.js"></script>
+    <script src="layui/layui.js"></script>
+    <script src="js/date-utils.js"></script>
+    <style>
+        .layui-upload-img {
+            width: 92px;
+            height: 92px;
+            margin: 0 10px 10px 0;
+        }
+    </style>
+</head>
+<body>
+<table style="margin: 0;" id="layui-table-id" lay-filter="table"></table>
+<!--弹出层-->
+<div style="display: none" class="popup-box-div">
+    <div>
+        <div class="layui-tab layui-tab-brief" style="height: 460px; position: relative;"
+             lay-filter="docDemoTabBrief">
+            <ul class="layui-tab-title" style="height: 41px;">
+                <li class="layui-this">添加会议室</li>
+            </ul>
+            <div class="layui-tab-content" style="height: 400px; overflow-y: auto; overflow-x: hidden; padding: 5px 10px">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label  class="col-sm-2 control-label">会议室名称</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control meeting-room-name" placeholder="请输入会议室名称">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">会议室图片</label>
+                        <div class="col-sm-10">
+                            <div class="layui-upload meeting_room_img">
+                                <button type="button" class="layui-btn meeting-room-img-button">上传图片</button>
+                                <div class="layui-upload-list">
+                                    <img class="layui-upload-img meeting-room-img">
+                                    <p class="meeting-room-img-p"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">可容纳人数</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control meeting-room-galleryful" placeholder="请输入会议室可容纳人数">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">会议室地址</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control meeting-room-site" placeholder="请输入会议室地址">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">会议室资源</label>
+                        <div class="col-sm-10">
+                            <div class="checkbox layui-form meeting-room-resource">
+<!--                                <input type="checkbox" name="" title="写作" lay-skin="primary">-->
+<!--                                <input type="checkbox" name="" title="发呆" lay-skin="primary">-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="height: 40px; text-align: right; line-height: 40px;">
+            <button class="layui-btn layui-btn-sm meeting-submit">添加</button>
+            <button class="layui-btn layui-btn-sm meeting-close" style="margin-right: 30px;">取消</button>
+        </div>
+    </div>
+</div>
+<script type="text/html" id="toolbarUtils">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm" lay-event="addMeetingRoom">增加会议室</button>
+    </div>
+</script>
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<script>
+    $(function () {
+        $.get('meeting-room-resource/all', function (result) {
+            if(result.code == 200){
+                for(var b in result.data){
+                    $('.meeting-room-resource').append(' <input type="checkbox" name="" title="'+ result.data[b].resourceName + '" lay-skin="primary">');
+                }
+            }
+        }, 'json');
+    })
+
+    // layui框架写法（全选）
+    layui.use('form', function () {
+        var form = layui.form;
+        //监听提交
+        form.render();
+    });
+    layui.use('table', function () {
+        var table = layui.table;
+        //第一个实例
+        table.render({
+            elem: '#layui-table-id'
+            , url: 'meeting-room/all'//数据接口
+            , limit: 20
+            , limits: [20, 30, 40]
+            , page: true
+            , toolbar: '#toolbarUtils'
+            , defaultToolbar: []
+            , response: {
+                statusCode: 200 //规定成功的状态码，默认：0
+            }
+            , height: 'full-3' //高度最大化减去差值'''//数据接口
+            , cols: [[
+                {field: 'meetingRoomId', title: 'ID', unresize: true, align: 'center'}
+                , {field: 'meetingRoomName', title: '会议室名称', unresize: true, align: 'center'}
+                , {field: 'meetingRoomImg', title: '会议图片', unresize: true, align: 'center', templet: function (res) {
+                        return '<img style="height: 50px; width: 100px;" src=' + res.meetingRoomImg + ' />';
+                    }
+                } //width 支持：数字、百分比和不填写。你还可以通过 minWidth 参数局部定义当前单元格的最小宽度，layui 2.2.1 新增
+                , {field: 'meetingRoomGalleryful', title: '会议室可容纳人数', unresize: true, align: 'center'}
+                , {field: 'meetingRoomSite', title: '会议室地址', unresize: true, align: 'center'}
+                , {field: 'meetingRoomResources', title: '会议室资源', unresize: true, align: 'center'}
+                , {field: 'meetingRoomState', title: '会议室当前状态', unresize: true, align: 'center', templet: function (res) {
+                        return res.meetingRoomState == 0 ? '未开放' : res.meetingRoomState == 1 ? '开放' : res.meetingRoomState == 2 ? '会议进行中' : '未知状态';
+                    }
+                }
+                , {field: '操作', title: '操作', toolbar: '#barDemo', width: 150, unresize: true, align: 'center'}
+            ]]
+            , parseData: function (res) { //使用这个可再一次申请数据
+                return {
+                    "code": res.code, //解析接口状态
+                    "msg": res.msg, //解析提示文本
+                    "count": res.data.length, //解析数据长度
+                    "data": res.data//解析数据列表
+                }
+            }
+        });
+
+        //监听行工具事件
+        table.on('tool(table)', function (obj) {
+            var data = obj.data;// 获得本行数据，其实是返回的对象里的所有数据，即使没用做显示的也在里面
+            var message = "";
+            if (obj.event === 'del') {
+                message = "真的删除吗？";
+                layer.confirm(message, function () {
+                    $.get('meeting-room/del', {meetingRoomId: data.meetingRoomId}, function (result) {
+                        if (result.code == 200) {
+                            window.location.reload();
+                            // obj.del();
+                            // layer.close(index);
+                        }
+                    }, 'json');
+                });
+            } else if (obj.event === 'edit') {
+                data.created = undefined;
+                data.updated = undefined;
+                data.meetingRoomState = undefined;
+                addMeeting(data);
+            }
+        });
+
+        //头工具栏事件
+        table.on('toolbar(table)', function (obj) {
+            switch (obj.event) {
+                case 'addMeetingRoom':
+                    addMeeting();
+                    break;
+            }
+        });
+    });
+
+    var uploadingMessageClassArr = new Array(20); //存储弹框需要信息框的Class名称
+    //预定会议弹框
+    function addMeeting(data) {
+        layui.use('layer', function () {
+            var layer = layui.layer;
+            var form = layui.form;
+            //当layui用class作为dom对象时，第一个显示正常，后面会显示不正常
+            uploadingMessageClassArr[0] = 'meeting-room-name' + showTime(0); //会议室名称
+            uploadingMessageClassArr[1] = 'meeting-room-img-button' + showTime(0); //会议室上传图片按钮
+            uploadingMessageClassArr[2] = 'meeting-room-img' + showTime(0); //会议室图片
+            uploadingMessageClassArr[3] = 'meeting-room-img-p' + showTime(0); //会议室图片失败显示
+            uploadingMessageClassArr[4] = 'meeting-room-galleryful' + showTime(0); //会议可容纳人数
+            uploadingMessageClassArr[5] = 'meeting-room-site' + showTime(0);//会议室地址
+            uploadingMessageClassArr[6] = 'meeting-room-resource' + showTime(0);//会议室资源
+            uploadingMessageClassArr[7] = 'meeting-submit' + showTime(0);//提交按钮
+            uploadingMessageClassArr[8] = 'meeting-close' + showTime(0);//取消按钮
+            var addObj = $($('.popup-box-div').html());//获取弹出层模板html,并使用jquery解析
+            var addObjChildren = addObj.children();
+            addObjChildren.addClass("add-meeting-room-message");
+            addObjChildren.find('.meeting-room-name').addClass(uploadingMessageClassArr[0]);
+            addObjChildren.find('.meeting-room-img-button').addClass(uploadingMessageClassArr[1]);
+            addObjChildren.find('.meeting-room-img').addClass(uploadingMessageClassArr[2]);
+            addObjChildren.find('.meeting-room-img-p').addClass(uploadingMessageClassArr[3]);
+            addObjChildren.find('.meeting-room-galleryful').addClass(uploadingMessageClassArr[4]);
+            addObjChildren.find('.meeting-room-site').addClass(uploadingMessageClassArr[5]);
+            addObjChildren.find('.meeting-room-resource').addClass(uploadingMessageClassArr[6]);
+            addObjChildren.find('.meeting-submit').addClass(uploadingMessageClassArr[7]);
+            addObjChildren.find('.meeting-close').addClass(uploadingMessageClassArr[8]);
+            layer.open({
+                type: 1
+                , closeBtn: 1
+                , title: false
+                , area: ['650px', '500px']
+                , content: addObj.html()//$('.popup-box-div').html().replace('popup-date-input', inputClass).replace('popup-time-price_min-input', inputClass1).replace('popup-time-price_max-input', inputClass2)
+                , success: function (layero, index) {
+                    if(data){
+                        $('.' + uploadingMessageClassArr[7]).text('修改');
+                        $('.' + uploadingMessageClassArr[0]).val(data.meetingRoomName);
+                        $('.' + uploadingMessageClassArr[2]).attr('src', data.meetingRoomImg);
+                        $('.' + uploadingMessageClassArr[4]).val(data.meetingRoomGalleryful);
+                        $('.' + uploadingMessageClassArr[5]).val(data.meetingRoomSite);
+                        console.log(data["meetingRoomResources"]);
+                        var strArr = data.meetingRoomResources.split(',');
+                        for(var b in strArr){
+                            $('.' + uploadingMessageClassArr[6]).children('input[title="'+ strArr[b] +'"]').attr('checked', true);
+                        }
+                    }
+                    form.render();
+                    layui.use('upload', function () {
+                        var upload = layui.upload;
+                        //普通图片上传
+                        var uploadInst = upload.render({
+                            elem: '.' + uploadingMessageClassArr[1]
+                            , url: 'file/upload'
+                            ,data: {dir: 'image'}
+                            ,accept: 'images'
+                            ,acceptMime: 'image/*'
+                            ,before: function(){
+                                $('.' + uploadingMessageClassArr[2]).attr('src', 'img/等待.gif'); //图片链接（base64）
+                            }
+                            ,done: function(res){
+                                //上传成功
+                                if(res.code == 200){
+                                    layer.msg('上传成功', {icon: 6});
+                                    $('.' + uploadingMessageClassArr[2]).attr('src', res.data.url); //图片链接（base64）
+                                    $('.' + uploadingMessageClassArr[3]).hide();
+                                }
+                            }
+                            ,error: function() {
+                                //演示失败状态，并实现重传
+                                var demoText = $('.' + uploadingMessageClassArr[3]);
+                                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                                demoText.find('.demo-reload').on('click', function () {
+                                    uploadInst.upload();
+                                });
+                            }
+                        });
+                    });
+                }
+            });
+            //提交按钮
+            $('.' + uploadingMessageClassArr[7]).click(function () {
+                submitMeetingMessage(data);
+            });
+            //取消按钮
+            $('.' + uploadingMessageClassArr[8]).click(function () {
+                layer.closeAll();
+            });
+        });
+    }
+    function lengthIsZero(str, msg) {
+        if (str.length == 0) {
+            try {
+                layer.alert(msg + "不能为空", {icon: 2});
+            }catch (e) {
+                layer.alert(msg + "不能为空");
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function submitMeetingMessage(obj) {
+        if(!obj){
+            obj = {};
+        }
+        obj.meetingRoomName = $('.' + uploadingMessageClassArr[0]).val();
+        obj.meetingRoomName= $.trim(obj.meetingRoomName);
+        if(lengthIsZero(obj.meetingRoomName , '会议室名称')){
+            return false;
+        }
+
+        obj.meetingRoomImg =  $('.' + uploadingMessageClassArr[2]).attr('src');
+        obj.meetingRoomImg = $.trim(obj.meetingRoomImg);
+        if(lengthIsZero(obj.meetingRoomImg, '会议室图片')){
+            return false;
+        }
+        obj.meetingRoomGalleryful = $('.' + uploadingMessageClassArr[4]).val();
+        obj.meetingRoomGalleryful = $.trim(obj.meetingRoomGalleryful);
+        if(lengthIsZero(obj.meetingRoomGalleryful, '会议可容纳人数')){
+            return false;
+        }
+
+        obj.meetingRoomSite = $('.' + uploadingMessageClassArr[5]).val();
+        obj.meetingRoomSite = $.trim(obj.meetingRoomSite);
+        if(lengthIsZero(obj.meetingRoomSite, '会议室地址')){
+            return false;
+        }
+        var arr = [];
+        $('.' + uploadingMessageClassArr[6]).children('input:checked').each(function () {
+            arr.push($(this).attr('title'));
+        });
+        obj.meetingRoomResources = arr.toString();
+        if(lengthIsZero(obj.meetingRoomResources, '会议室资源')){
+            return false;
+        }
+        console.log(obj);
+        var url = 'meeting-room/add', message = '添加';
+        if(obj.meetingRoomId){
+            url = 'meeting-room/update';
+            message = '修改';
+        }
+        $.get(url, obj, function (result) {
+            if(result.code == 200){
+                layer.alert(message + '成功', {icon: 1}, function () {
+                    layer.closeAll();
+                    window.location.reload();
+                });
+            }else{
+                layer.alert(message + '失败：' + result.msg);
+            }
+        }, 'json');
+    }
+</script>
+</body>
+</html>

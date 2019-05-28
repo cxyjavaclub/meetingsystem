@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.quansu.daointerface.MeetingInformMapper">
+  <resultMap id="BaseResultMap" type="com.quansu.pojo.MeetingInform">
+    <id column="inform_id" jdbcType="BIGINT" property="informId" />
+    <result column="inform_message" jdbcType="VARCHAR" property="informMessage" />
+    <result column="inform_user_name" jdbcType="VARCHAR" property="informUserName" />
+    <result column="inform_state" jdbcType="TINYINT" property="informState" />
+    <result column="delete_state" jdbcType="BIT" property="deleteState" />
+    <result column="created" jdbcType="TIMESTAMP" property="created" />
+    <result column="updated" jdbcType="TIMESTAMP" property="updated" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    inform_id, inform_message, inform_user_name, inform_state, delete_state, created, 
+    updated
+  </sql>
+  <select id="selectByExample" parameterType="com.quansu.pojo.MeetingInformExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from meeting_inform
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from meeting_inform
+    where inform_id = #{informId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from meeting_inform
+    where inform_id = #{informId,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.quansu.pojo.MeetingInformExample">
+    delete from meeting_inform
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.quansu.pojo.MeetingInform">
+    insert into meeting_inform (inform_id, inform_message, inform_user_name, 
+      inform_state, delete_state, created, 
+      updated)
+    values (#{informId,jdbcType=BIGINT}, #{informMessage,jdbcType=VARCHAR}, #{informUserName,jdbcType=VARCHAR}, 
+      #{informState,jdbcType=TINYINT}, #{deleteState,jdbcType=BIT}, #{created,jdbcType=TIMESTAMP}, 
+      #{updated,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.quansu.pojo.MeetingInform">
+    insert into meeting_inform
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="informId != null">
+        inform_id,
+      </if>
+      <if test="informMessage != null">
+        inform_message,
+      </if>
+      <if test="informUserName != null">
+        inform_user_name,
+      </if>
+      <if test="informState != null">
+        inform_state,
+      </if>
+      <if test="deleteState != null">
+        delete_state,
+      </if>
+      <if test="created != null">
+        created,
+      </if>
+      <if test="updated != null">
+        updated,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="informId != null">
+        #{informId,jdbcType=BIGINT},
+      </if>
+      <if test="informMessage != null">
+        #{informMessage,jdbcType=VARCHAR},
+      </if>
+      <if test="informUserName != null">
+        #{informUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="informState != null">
+        #{informState,jdbcType=TINYINT},
+      </if>
+      <if test="deleteState != null">
+        #{deleteState,jdbcType=BIT},
+      </if>
+      <if test="created != null">
+        #{created,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updated != null">
+        #{updated,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.quansu.pojo.MeetingInformExample" resultType="java.lang.Long">
+    select count(*) from meeting_inform
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update meeting_inform
+    <set>
+      <if test="record.informId != null">
+        inform_id = #{record.informId,jdbcType=BIGINT},
+      </if>
+      <if test="record.informMessage != null">
+        inform_message = #{record.informMessage,jdbcType=VARCHAR},
+      </if>
+      <if test="record.informUserName != null">
+        inform_user_name = #{record.informUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.informState != null">
+        inform_state = #{record.informState,jdbcType=TINYINT},
+      </if>
+      <if test="record.deleteState != null">
+        delete_state = #{record.deleteState,jdbcType=BIT},
+      </if>
+      <if test="record.created != null">
+        created = #{record.created,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updated != null">
+        updated = #{record.updated,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update meeting_inform
+    set inform_id = #{record.informId,jdbcType=BIGINT},
+      inform_message = #{record.informMessage,jdbcType=VARCHAR},
+      inform_user_name = #{record.informUserName,jdbcType=VARCHAR},
+      inform_state = #{record.informState,jdbcType=TINYINT},
+      delete_state = #{record.deleteState,jdbcType=BIT},
+      created = #{record.created,jdbcType=TIMESTAMP},
+      updated = #{record.updated,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.quansu.pojo.MeetingInform">
+    update meeting_inform
+    <set>
+      <if test="informMessage != null">
+        inform_message = #{informMessage,jdbcType=VARCHAR},
+      </if>
+      <if test="informUserName != null">
+        inform_user_name = #{informUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="informState != null">
+        inform_state = #{informState,jdbcType=TINYINT},
+      </if>
+      <if test="deleteState != null">
+        delete_state = #{deleteState,jdbcType=BIT},
+      </if>
+      <if test="created != null">
+        created = #{created,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updated != null">
+        updated = #{updated,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where inform_id = #{informId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.quansu.pojo.MeetingInform">
+    update meeting_inform
+    set inform_message = #{informMessage,jdbcType=VARCHAR},
+      inform_user_name = #{informUserName,jdbcType=VARCHAR},
+      inform_state = #{informState,jdbcType=TINYINT},
+      delete_state = #{deleteState,jdbcType=BIT},
+      created = #{created,jdbcType=TIMESTAMP},
+      updated = #{updated,jdbcType=TIMESTAMP}
+    where inform_id = #{informId,jdbcType=BIGINT}
+  </update>
+</mapper>

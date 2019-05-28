@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base href="/meetingsystem/"> <!--//再请求开头添加这个字符串-->
+    <meta charset="UTF-8">
+    <title>会场查询</title>
+    <!--css-->
+    <link rel="stylesheet" href="layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="css/meeting-reserve.css">
+    <!--bootstrap-->
+    <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+
+    <!--js-->
+    <script type="text/javascript" src="js/jquery-3.2.1.js"></script>
+    <script src="layui/layui.js"></script>
+    <script src="js/date-utils.js"></script>
+
+</head>
+<body>
+<div style="padding: 20px; background-color: #F2F2F2;">
+    <div class="layui-col-md12">
+        <div class="layui-input-inline" style="padding-bottom: 5px;">
+            <input type="text" style="display: inline-block; width: auto;" class="layui-input" id="date-amend-input-id" placeholder="yyyy-MM-dd">
+            <button class="layui-btn layui-btn-sm" onclick="onTheDay()">上一天</button>
+            <button class="layui-btn layui-btn-sm" onclick="theNextDay()">下一天</button>
+
+        </div>
+    </div>
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md6">
+            <div class="layui-card">
+                <div class="layui-card-header">卡片面板</div>
+                <div class="layui-card-body">
+                    卡片式面板面板通常用于非白色背景色的主体内<br>
+                    从而映衬出边框投影
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        acquireAllMeetingRoom(dateFtt('yyyy-MM-dd') + ' ' + '00:00:00');
+    })
+
+    // 上一天
+    function onTheDay() {
+        $('#date-amend-input-id').val(showTime(-1, $('#date-amend-input-id').val()));
+        acquireAllMeetingRoom($('#date-amend-input-id').val() + ' ' + '00:00:00');
+    }
+
+    // 下一天
+    function theNextDay() {
+        $('#date-amend-input-id').val(showTime(1, $('#date-amend-input-id').val()));
+        acquireAllMeetingRoom($('#date-amend-input-id').val() + ' ' + '00:00:00');
+    }
+    var allMeetingRoomObject = []; //所有会议室信息
+    //获取所有的会议室信息
+    function acquireAllMeetingRoom(data) {
+        $('.layui-row').html('');
+        var strObj = "<div class=\"layui-col-md6\">" +
+            "            <div class=\"layui-card\">" +
+            "                <div class=\"layui-card-header\"></div>" +
+            "                <div class=\"layui-card-body\">" +
+            "                    " +
+            "                </div>" +
+            "            </div>" +
+            "        </div>";
+        $.get('meeting-room/all', function (result) {
+            if (result.code == 200) {
+                allMeetingRoomObject = result.data;
+                for (var v in result.data) {
+                    var jqueryObj = $(strObj);
+                    jqueryObj.find('.layui-card-header').text(result.data[v]['meetingRoomName']).attr('meetingRoomId', result.data[v]['meetingRoomId']);
+                    $('.layui-row').append(jqueryObj);
+                    $.get('meeting/meeting-room-id-date', {meetingRoomId: result.data[v]['meetingRoomId'],
+                            millisecond: new Date(data).getTime()},
+                        function (result) {
+                            if(result.code == 200){
+                                console.log(result.data);
+                                for(var o in result.data){
+                                    result.data[o]['meetingBeginDate'] = dateFtt('yyyy-MM-dd HH:mm:ss', result.data[o]['meetingBeginDate']);
+                                    result.data[o]['meetingEndDate'] = dateFtt('yyyy-MM-dd HH:mm:ss', result.data[o]['meetingEndDate']);
+                                    var obj = $('<p>' + result.data[o]['sponsorTrueName'] + '  ' + result.data[o]['meetingTheme']+ '  '
+                                        + result.data[o]['meetingBeginDate'].split(' ')[1] + ' - ' + result.data[o]['meetingEndDate'].split(' ')[1]
+                                        +'  ' + (result.data[o]['meetingAuditState'] == 0 ? '待审核' : result.data[o]['meetingAuditState'] == 1 ?
+                                            '审核通过': result.data[o]['meetingAuditState'] == 2 ? '审核未通过' : '未知') +'</p>');
+                                    $('.layui-card-header[meetingRoomId='+  result.data[o]['meetingRoomId'] +']').next().append(obj);
+                                }
+                            }
+                        }, 'json');
+                }
+            }
+        }, 'json');
+    }
+
+
+    layui.use(['element', 'layer', 'laydate'], function () {
+        var element = layui.element;
+        var layer = layui.layer;
+        var laydate = layui.laydate;
+        //常规用法
+        laydate.render({
+            elem: '#date-amend-input-id'
+            , value: new Date() //必须遵循format参数设定的格式
+            ,done: function(value, date, endDate){
+                console.log(value);
+                acquireAllMeetingRoom(value + ' ' + '00:00:00');
+            }
+        });
+    });
+</script>
+</body>
+</html>

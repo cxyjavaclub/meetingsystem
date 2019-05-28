@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base href="/meetingsystem/"> <!--//再请求开头添加这个字符串-->
+    <meta charset="UTF-8">
+    <title>添加设备</title>
+    <!--css-->
+    <link rel="stylesheet" href="layui/css/layui.css" media="all">
+    <!--    bootstrap-->
+    <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+    <!--js-->
+    <script type="text/javascript" src="js/jquery-3.2.1.js"></script>
+    <script src="layui/layui.js"></script>
+    <script src="js/date-utils.js"></script>
+</head>
+<body>
+<div class="layui-tab-content" style="width: 700px; text-align: left; overflow-y: auto; overflow-x: hidden; padding: 15px 10px">
+    <div class="form-horizontal">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">关联会议室</label>
+            <div class="col-sm-10">
+                <select class="form-control popup-meeting-room-select">
+                    <option selected disabled>请选择一个会议室</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">设备类型</label>
+            <div class="col-sm-10">
+                <select class="form-control popup-equipment-type">
+                    <option selected disabled>请选择设备类型</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">设备唯一Id号</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control equipment_uuid" placeholder="请输入设备唯一Id号">
+            </div>
+        </div>
+    </div>
+    <div style="height: 40px; line-height: 40px; padding: 0 10px">
+        <button class="layui-btn layui-btn-sm equipment-submit">添加</button>
+    </div>
+</div>
+    <script>
+        layui.use('layer', function() { //独立版的layer无需执行这一句
+            var layer = layui.layer;
+        });
+        var allMeetingRoomObject = []; //所有会议室信息
+        //获取所有的会议室信息
+        function acquireAllMeetingRoom() {
+            $.get('meeting-room/all', function (result) {
+                if (result.code == 200) {
+                    allMeetingRoomObject = result.data;
+                    for (var v in result.data) {
+                        $('.popup-meeting-room-select').append('<option value="'+ result.data[v]['meetingRoomId'] +'">' + result.data[v]['meetingRoomName'] + '</option>');
+                    }
+                }
+            }, 'json');
+            $('.popup-equipment-type').append('<option value="'+ 0 +'">大屏</option>');
+            $('.popup-equipment-type').append('<option value="'+ 1 +'">平板</option>');
+            $('.popup-equipment-type').append('<option value="'+ 2 +'">身份证读取器</option>');
+        }
+
+        function lengthIsZero(str, msg) {
+            if (str.length == 0) {
+                try {
+                    layer.alert(msg + "不能为空", {icon: 2});
+                }catch (e) {
+                    layer.alert(msg + "不能为空");
+                }
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+
+        //封装数据
+        function packAjaxData() {
+            var obj = {};
+            obj.meetingRoomId = $('.popup-meeting-room-select').children('option:selected').attr('value');
+            if(!obj.meetingRoomId){
+                layer.alert('请选择会议室');
+                return false;
+            }
+            obj.meetingRoomName = $('.popup-meeting-room-select').children('option:selected').text();
+            obj.equipmentType = $('.popup-equipment-type').children('option:selected').attr('value');
+            if(!obj.equipmentType){
+                layer.alert('请选择设备类型');
+                return false;
+            }
+            obj.equipmentUuid = $('.equipment_uuid').val();
+            obj.equipmentUuid = $.trim(obj.equipmentUuid);
+            if (lengthIsZero(obj.equipmentUuid, '设备唯一id')) {
+                return false;
+            }
+            return obj;
+        }
+
+        function submitMeetingMessage(obj, fun) {
+            console.log(obj);
+            $.get('equipment/add', obj, function (result) {
+                fun(result);
+            }, 'json')
+        }
+
+        $(function () {
+            acquireAllMeetingRoom();
+            $('.equipment-submit').click(function () {
+                var data = packAjaxData();
+                if(data == false){
+                    return;
+                }
+                submitMeetingMessage(data, function (result) {
+                    if(result.code == 200){
+                        layer.alert('添加成功', {icon: 1}, function () {
+                            window.location.reload();
+                        });
+                    }
+                });
+            });
+        })
+    </script>
+</body>
+</html>

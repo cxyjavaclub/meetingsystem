@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base href="/meetingsystem/"> <!--//再请求开头添加这个字符串-->
+    <meta charset="UTF-8">
+    <title>所有会议列表</title>
+    <!--css-->
+    <link rel="stylesheet" href="layui/css/layui.css" media="all">
+    <!--bootstrap-->
+    <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+    <!--js-->
+    <script type="text/javascript" src="js/jquery-3.2.1.js"></script>
+    <script src="layui/layui.js"></script>
+    <script type="text/javascript" src="js/date-utils.js"></script>
+</head>
+<body>
+<div class="demoTable" style="width: 100%; padding: 0 10px; overflow: hidden;">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group" style="margin-bottom: 5px">
+                <label>会议发起人</label>
+                <input type="text" class="form-control sponsor-true-name" placeholder="请输入会议发起人">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group" style="margin-bottom: 5px">
+                <label>会议主题</label>
+                <input type="text" class="form-control meeting-theme" placeholder="请输入会议主题">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group" style="margin-bottom: 5px">
+                <label>会议选择</label>
+                <select class="form-control meeting-room-select">
+                    <option selected>所有会议室</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group" style="margin-bottom: 5px">
+                <label>日期范围</label>
+                <input type="text" class="form-control" id="meeting-date-scope" placeholder="yyyy-MM-dd">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group" style="margin-bottom: 5px; overflow: hidden;">
+                <label>会议时间</label><br/>
+                <input type="text" style="width: 46%; display: inline-block;" id="meeting-time-scope"
+                       class="form-control" placeholder="请输入会议主题">&nbsp;-
+                <input type="text" style="width: 48%; display: inline-block;" id="meeting-time-scope1"
+                       class="form-control" placeholder="请输入会议主题">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group" style="margin-bottom: 5px">
+                <p style="margin-bottom: 5px;">&nbsp;</p>
+                <input class="btn btn-success" type="button" value="搜索">
+            </div>
+        </div>
+
+    </div>
+</div>
+<table style="margin: 0;" id="layui-table-id" lay-filter="table"></table>
+<script type="text/html" id="toolbarUtils">
+</script>
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="detail">查看</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<script>
+    layui.use('laydate', function () {
+        var laydate = layui.laydate;
+        //常规用法
+        laydate.render({
+            elem: '#meeting-date-scope' //指定元素
+            // , value: new Date() //必须遵循format参数设定的格式
+        });
+
+        laydate.render({
+            elem: '#meeting-time-scope' //指定元素
+            , type: 'time'
+            , ready: formatminutes
+        });
+        laydate.render({
+            elem: '#meeting-time-scope1' //指定元素
+            , type: 'time'
+            , ready: formatminutes
+        });
+
+        function formatminutes() {
+            $('.laydate-time-list>li:nth-child(3)').remove();
+        }
+    });
+    $(function () {
+        $.get('meeting-room/all', function (result) {
+            if (result.code == 200) {
+                for (var v in result.data) {
+                    $('.meeting-room-select').append('<option value="' + result.data[v]['meetingRoomId'] + '">' + result.data[v]['meetingRoomName'] + '</option>');
+                }
+            }
+        }, 'json');
+    })
+
+    function ifNull(obj) {
+        if (obj != null) {
+            if (obj.length != 0) {
+                return true;
+            }
+        }
+    }
+
+    function getSearchData() {
+        var obj = {};
+        var value;
+        value = $('.sponsor-true-name').val();
+        if (ifNull(value)) obj.sponsorTrueName = value;
+        value = $('.meeting-theme').val();
+        if (ifNull(value)) obj.meetingTheme = value;
+        value = $('.meeting-room-select').children('option:selected').attr('value');
+        if (ifNull(value)) obj.meetingRoomId = value;
+        var date = $('#meeting-date-scope').val();
+        var begin = $('#meeting-time-scope').val();
+        var end = $('#meeting-time-scope1').val();
+        if (ifNull(begin) || ifNull(end)) {
+            if (ifNull(begin)) {
+                if (!ifNull(date)) {
+                    laydate.render({
+                        elem: '#meeting-date-scope' //指定元素
+                        , value: new Date() //必须遵循format参数设定的格式
+                    });
+                    date = $('#meeting-date-scope').val();
+                }
+                obj.meetingBeginDate = getStringByDate(date + ' ' + begin);
+            }
+            if (ifNull(end)) {
+                if (!ifNull(date)) {
+                    laydate.render({
+                        elem: '#meeting-date-scope' //指定元素
+                        , value: new Date() //必须遵循format参数设定的格式
+                    });
+                    date = $('#meeting-date-scope').val();
+                }
+                obj.meetingEndDate = getStringByDate(date + ' ' + end);
+            }
+        } else {
+            if (ifNull(date)) {
+                obj.meetingBeginDate = getStringByDate(date + ' 00:00:00');
+                obj.meetingEndDate = getStringByDate(date + ' 23:59:59');
+            }
+        }
+        return obj;
+    }
+
+    $(function () {
+        heavyLoad('meeting/search');
+        $('.demoTable .btn-success').on('click', function () {
+            heavyLoad('meeting/search');
+        });
+    })
+
+    function heavyLoad(url) {
+        var data = getSearchData();
+        layui.use('table', function () {
+            window.table = layui.table;
+            //第一个实例
+            table.render({
+                elem: '#layui-table-id'
+                , url: url //数据接口
+                , where: data
+                , limit: 10
+                , limits: [10, 20, 30]
+                , page: true
+                , response: {
+                    statusCode: 200 //规定成功的状态码，默认：0
+                }
+                , height: 'full-131' //高度最大化减去差值'
+                , cols: [[
+                    // {field: 'meetingId', title: 'ID', unresize: true, align: 'center'},
+                    {field: 'sponsorTrueName', title: '会议发起人', align: 'center'}
+                    , {field: 'meetingTheme', title: '会议主题', align: 'center'} //width 支持：数字、百分比和不填写。你还可以通过 minWidth 参数局部定义当前单元格的最小宽度，layui 2.2.1 新增
+                    , {field: 'meetingRoomName', title: '会议室', align: 'center'}
+                    , {
+                        field: 'meetingBeginDate', title: '开始时间', align: 'center', templet: function (res) {
+                            return dateFtt('yyyy-MM-dd HH:mm:ss', res.meetingBeginDate);
+                        }
+                    }
+                    , {
+                        field: 'meetingEndDate', title: '结束时间', align: 'center', templet: function (res) {
+                            return dateFtt('yyyy-MM-dd HH:mm:ss', res.meetingEndDate);
+                        }
+                    }
+                    , {field: 'meetingContent', title: '会议内容', align: 'center'} //单元格内容水平居中
+                    , {
+                        field: 'meetingAuditState',
+                        title: '会议状态',
+                        unresize: true,
+                        align: 'center',
+                        templet: function (res) {
+                            return res.meetingAuditState == 0 ? '待审核' : res.meetingAuditState == 1 ? '审核通过' : res.meetingAuditState == 1 ? '审核未通过' : '未知';
+                        }
+                    } //单元格内容水平居中
+                    , {
+                        field: 'meetingSignInState',
+                        title: '会议签到状态',
+                        unresize: true,
+                        align: 'center',
+                        templet: function (res) {
+                            return res.meetingSignInState == 0 ? '未签到' : res.meetingSignInState == 1 ? '已签到' : '未知';
+                        }
+                    } //单元格内容水平居中
+                    , {field: '操作', title: '操作', toolbar: '#barDemo', width: 150, unresize: true, align: 'center'}
+                ]]
+                , parseData: function (res) { //使用这个可再一次申请数据
+                    return {
+                        "code": res.code, //解析接口状态
+                        "msg": res.msg, //解析提示文本
+                        "count": res.data.total, //解析数据长度
+                        "data": res.data.list//解析数据列表
+                    }
+                }
+                , id: 'testReload'
+            });
+            //监听行工具事件
+            table.on('tool(table)', function (obj) {
+                var data = obj.data;// 获得本行数据，其实是返回的对象里的所有数据，即使没用做显示的也在里面
+                var message = "";
+                if (obj.event === 'del') {
+                    message = "真的删除吗？";
+                    layer.confirm(message, function () {
+                        $.get('meeting/del', {meetingId: data.meetingId}, function (result) {
+                            if (result.code == 200) {
+                                window.location.reload();
+                                // obj.del();
+                                // layer.close(index);
+                            }
+                        }, 'json');
+                    });
+                } else if (obj.event === 'detail') {
+                    $.get('conferee/meeting-id-select', {meetingId: data.meetingId}, function (result) {
+                        if (result.code == 200) {
+                            if (result.data.length != 0) {
+                                for (var o in result.data) {
+                                    layer.alert('<p>' + data[0] + '</p>',{title: '参会人员信息'});
+                                }
+                            } else {
+                                layer.alert('<p>无数据</p>', {title: '参会人员信息'});
+                            }
+                        }
+                    }, 'json');
+                }
+            });
+        });
+    }
+</script>
+</body>
+</html>
